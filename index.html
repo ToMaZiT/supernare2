@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0608" />
+  <title>SUPERNARE ²</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #090507;
+      --text: #fff7f9;
+      --muted: #a58f97;
+      --pink: #ff176f;
+      --hot: #ff4b1f;
+      --gold: #ffc857;
+      --line: rgba(255,255,255,.12);
+      --glass: rgba(24, 10, 16, .62);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 23, 111, .20), transparent 28%),
+        radial-gradient(circle at 82% 75%, rgba(255, 75, 31, .14), transparent 25%),
+        radial-gradient(circle at 15% 80%, rgba(255, 200, 87, .08), transparent 20%),
+        var(--bg);
+      overflow: hidden;
+    }
+
+    /* Textura sutil, inspirada en flyers de boliche / reggaetón 2010s */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .17;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 4px),
+        radial-gradient(circle, rgba(255,255,255,.12) 0 1px, transparent 1px);
+      background-size: auto, 5px 5px;
+      mix-blend-mode: overlay;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -30%;
+      pointer-events: none;
+      background: conic-gradient(
+        from 210deg at 50% 50%,
+        transparent 0deg,
+        rgba(255,23,111,.07) 70deg,
+        transparent 135deg,
+        rgba(255,75,31,.055) 215deg,
+        transparent 300deg
+      );
+      animation: rotateGlow 18s linear infinite;
+    }
+
+    .neon {
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      filter: blur(95px);
+      pointer-events: none;
+      opacity: .17;
+      animation: float 10s ease-in-out infinite alternate;
+    }
+
+    .neon.one { background: var(--pink); top: -250px; left: -140px; }
+    .neon.two { background: var(--hot); right: -190px; bottom: -250px; animation-delay: -4s; }
+
+    main {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .wrap {
+      width: min(1080px, 100%);
+      text-align: center;
+      animation: enter .9s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 15px;
+      border: 1px solid rgba(255,23,111,.28);
+      border-radius: 999px;
+      background: rgba(255,23,111,.065);
+      box-shadow: 0 0 35px rgba(255,23,111,.08);
+      color: #e8cdd5;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      backdrop-filter: blur(14px);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 8px var(--pink), 0 0 20px var(--pink);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    h1 {
+      margin: 24px 0 2px;
+      font-family: Anton, Impact, sans-serif;
+      font-size: clamp(68px, 14vw, 150px);
+      line-height: .84;
+      letter-spacing: .015em;
+      color: #fff;
+      text-shadow:
+        0 2px 0 #7e123e,
+        0 0 18px rgba(255,23,111,.25),
+        0 0 70px rgba(255,23,111,.13);
+      transform: scaleX(.94);
+    }
+
+    .sup {
+      color: var(--pink);
+      text-shadow: 0 0 20px rgba(255,23,111,.75);
+    }
+
+    .subtitle {
+      margin: 20px auto 42px;
+      color: var(--muted);
+      font-size: clamp(12px, 2vw, 15px);
+      letter-spacing: .14em;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .subtitle b {
+      color: #f7d9e2;
+      font-weight: 800;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .unit {
+      position: relative;
+      min-height: 170px;
+      display: grid;
+      place-items: center;
+      padding: 28px 10px 24px;
+      border: 1px solid var(--line);
+      border-top-color: rgba(255,23,111,.27);
+      border-radius: 6px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.055), transparent 55%),
+        var(--glass);
+      box-shadow:
+        0 25px 80px rgba(0,0,0,.35),
+        inset 0 1px rgba(255,255,255,.05),
+        0 0 0 1px rgba(255,23,111,.025);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    }
+
+    .unit::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--pink), transparent);
+      opacity: .7;
+    }
+
+    .unit::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.06), transparent 65%);
+      transform: translateX(-120%);
+      animation: shine 5s ease-in-out infinite;
+    }
+
+    .unit:nth-child(2)::after { animation-delay: .7s; }
+    .unit:nth-child(3)::after { animation-delay: 1.4s; }
+    .unit:nth-child(4)::after { animation-delay: 2.1s; }
+
+    .unit:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,23,111,.42);
+      box-shadow:
+        0 28px 80px rgba(0,0,0,.42),
+        0 0 35px rgba(255,23,111,.08);
+    }
+
+    .number {
+      display: block;
+      font-variant-numeric: tabular-nums;
+      font-family: Anton, Impact, sans-serif;
+      font-size: clamp(58px, 9vw, 94px);
+      line-height: .9;
+      letter-spacing: .025em;
+      color: #fff;
+      text-shadow: 0 0 28px rgba(255,23,111,.12);
+    }
+
+    .label {
+      display: block;
+      margin-top: 14px;
+      color: #8f737d;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+    }
+
+    footer {
+      margin-top: 26px;
+      color: #715b63;
+      font-size: 11px;
+      letter-spacing: .06em;
+    }
+
+    footer strong {
+      color: #b995a1;
+      font-weight: 700;
+    }
+
+    .footer-line {
+      margin-top: 8px;
+      color: #b86b83;
+      font-weight: 700;
+      font-style: italic;
+    }
+
+    .done {
+      font-family: Anton, Impact, sans-serif;
+      font-size: clamp(50px, 9vw, 100px);
+      letter-spacing: .03em;
+      color: var(--pink);
+      text-shadow: 0 0 35px rgba(255,23,111,.45);
+    }
+
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(24px) scale(.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes pulse {
+      50% { opacity: .35; transform: scale(.65); }
+    }
+
+    @keyframes shine {
+      0%, 65%, 100% { transform: translateX(-120%); }
+      82% { transform: translateX(120%); }
+    }
+
+    @keyframes float {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(55px, 35px) scale(1.12); }
+    }
+
+    @keyframes rotateGlow {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 680px) {
+      body { overflow: auto; }
+      main { min-height: 100svh; padding: 24px 18px; }
+      .countdown { grid-template-columns: repeat(2, 1fr); }
+      .unit { min-height: 145px; }
+      .subtitle { margin-bottom: 30px; }
+    }
+
+    @media (max-width: 390px) {
+      .countdown { gap: 8px; }
+      .unit { min-height: 132px; }
+      .number { font-size: 52px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="neon one"></div>
+  <div class="neon two"></div>
+
+  <main>
+    <section class="wrap">
+      <div class="eyebrow">
+        <span class="dot"></span>
+      </div>
+
+      <h1>SUPERNARE <span class="sup">²</span></h1>
+
+      <p class="subtitle">
+        Sábado <b>12 de septiembre de 2026</b>
+      </p>
+
+      <div class="countdown" id="countdown" aria-live="polite">
+        <div class="unit">
+          <span class="number" id="days">00</span>
+          <span class="label">Días</span>
+        </div>
+        <div class="unit">
+          <span class="number" id="hours">00</span>
+          <span class="label">Horas</span>
+        </div>
+        <div class="unit">
+          <span class="number" id="minutes">00</span>
+          <span class="label">Minutos</span>
+        </div>
+        <div class="unit">
+          <span class="number" id="seconds">00</span>
+          <span class="label">Segundos</span>
+        </div>
+      </div>
+
+      <footer>
+        <strong>Argentina · UTC−03:00</strong>
+        <div class="footer-line">Videla en el metegol te hago pelota</div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // Objetivo fijo en hora argentina (UTC-03:00).
+    const target = new Date("2026-09-12T20:00:00-03:00").getTime();
+
+    const $ = id => document.getElementById(id);
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function update() {
+      const remaining = target - Date.now();
+
+      if (remaining <= 0) {
+        $("countdown").innerHTML =
+          '<div class="done" style="grid-column:1/-1">LLEGÓ EL MOMENTO.</div>';
+        return;
+      }
+
+      const totalSeconds = Math.floor(remaining / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      $("days").textContent = pad(days);
+      $("hours").textContent = pad(hours);
+      $("minutes").textContent = pad(minutes);
+      $("seconds").textContent = pad(seconds);
+    }
+
+    update();
+    setInterval(update, 250);
+  </script>
+</body>
+</html>
