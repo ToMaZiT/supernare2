@@ -29,12 +29,26 @@
       margin: 0;
       color: var(--text);
       font-family: Inter, system-ui, sans-serif;
-      background:
-        radial-gradient(circle at 50% 20%, rgba(255, 23, 111, .20), transparent 28%),
-        radial-gradient(circle at 82% 75%, rgba(255, 75, 31, .14), transparent 25%),
-        radial-gradient(circle at 15% 80%, rgba(255, 200, 87, .08), transparent 20%),
-        var(--bg);
+      background: var(--bg);
       overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* Fondo ambiental lento: pensado para quedar encendido durante horas en un TV. */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -35%;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 25% 30%, rgba(255, 23, 111, .28), transparent 22%),
+        radial-gradient(circle at 75% 35%, rgba(255, 75, 31, .20), transparent 24%),
+        radial-gradient(circle at 55% 78%, rgba(255, 200, 87, .10), transparent 20%),
+        radial-gradient(circle at 12% 82%, rgba(180, 20, 100, .15), transparent 22%);
+      filter: blur(55px) saturate(125%);
+      animation: ambient 24s ease-in-out infinite alternate;
+      transform-origin: center;
     }
 
     /* Textura sutil, inspirada en flyers de boliche / reggaetón 2010s */
@@ -51,35 +65,35 @@
       mix-blend-mode: overlay;
     }
 
-    body::after {
-      content: "";
-      position: fixed;
-      inset: -30%;
-      pointer-events: none;
-      background: conic-gradient(
-        from 210deg at 50% 50%,
-        transparent 0deg,
-        rgba(255,23,111,.07) 70deg,
-        transparent 135deg,
-        rgba(255,75,31,.055) 215deg,
-        transparent 300deg
-      );
-      animation: rotateGlow 18s linear infinite;
-    }
+
 
     .neon {
       position: fixed;
-      width: 420px;
-      height: 420px;
+      width: 46vw;
+      height: 46vw;
+      min-width: 300px;
+      min-height: 300px;
       border-radius: 50%;
-      filter: blur(95px);
+      filter: blur(100px);
       pointer-events: none;
-      opacity: .17;
-      animation: float 10s ease-in-out infinite alternate;
+      opacity: .16;
+      z-index: -1;
+      mix-blend-mode: screen;
     }
 
-    .neon.one { background: var(--pink); top: -250px; left: -140px; }
-    .neon.two { background: var(--hot); right: -190px; bottom: -250px; animation-delay: -4s; }
+    .neon.one {
+      background: var(--pink);
+      top: -24vw;
+      left: -20vw;
+      animation: floatOne 19s ease-in-out infinite alternate;
+    }
+
+    .neon.two {
+      background: var(--hot);
+      right: -22vw;
+      bottom: -25vw;
+      animation: floatTwo 23s ease-in-out infinite alternate;
+    }
 
     main {
       min-height: 100vh;
@@ -122,7 +136,9 @@
       animation: pulse 1.2s ease-in-out infinite;
     }
 
-    h1 {
+    #mainTitle {
+      position: relative;
+      z-index: 2;
       margin: 24px 0 2px;
       font-family: Anton, Impact, sans-serif;
       font-size: clamp(68px, 14vw, 150px);
@@ -262,6 +278,192 @@
       text-shadow: 0 0 35px rgba(255,23,111,.45);
     }
 
+
+    .event-started main {
+      min-height: 100vh;
+    }
+
+    /* Fondo mucho más rápido y en movimiento constante una vez que el evento arrancó. */
+    body.event-started::after {
+      animation-duration: 6s;
+    }
+
+    body.event-started .neon.one {
+      animation-duration: 5s;
+    }
+
+    body.event-started .neon.two {
+      animation-duration: 6s;
+    }
+
+    /* --- Entrada del evento: se ejecuta una sola vez y termina. --- */
+
+    .event-started .wrap {
+      width: 100%;
+      position: relative;
+      animation:
+        eventReveal 1s cubic-bezier(.2,.8,.2,1) both,
+        impactPunch .45s ease-out 1s both;
+    }
+
+    /* Onda de choque cuando las letras "aterrizan". */
+    .event-started .wrap::before {
+      content: "";
+      position: absolute;
+      top: 48%;
+      left: 50%;
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(255,255,255,.7);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      animation: shockwave .8s cubic-bezier(.15,.8,.3,1) 1s both;
+    }
+
+    /* Destello corto y contenido, solo alrededor del título (no en toda la pantalla). */
+    .event-started .wrap::after {
+      content: "";
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      right: 10%;
+      bottom: 10%;
+      background: radial-gradient(circle at 50% 45%, rgba(255,255,255,.8), transparent 65%);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      animation: flashPop .6s ease-out 1s both;
+    }
+
+    .event-started #mainTitle {
+      margin: 0;
+      font-size: clamp(95px, 18vw, 250px);
+      letter-spacing: .01em;
+      display: inline-block;
+      text-shadow:
+        0 3px 0 #7e123e,
+        0 0 28px rgba(255,23,111,.38),
+        0 0 100px rgba(255,23,111,.22);
+      animation: titleBreathe 6s ease-in-out 2.3s infinite alternate;
+    }
+
+    /* Cada letra cae/gira y encastra en su lugar, con stagger. */
+    .event-started #mainTitle .letter,
+    .event-started #mainTitle .sup {
+      display: inline-block;
+      opacity: 0;
+      transform-origin: bottom center;
+      animation: letterDrop .62s cubic-bezier(.16,1,.3,1) both;
+      animation-delay: calc(var(--i, 0) * 0.05s + 0.05s);
+      will-change: transform, opacity, filter;
+    }
+
+    .event-started #mainTitle .sup {
+      margin-left: .1em;
+      color: var(--pink);
+      text-shadow: 0 0 20px rgba(255,23,111,.75);
+    }
+
+    /* Capa duplicada, invisible salvo por el brillo: el "clip" hace que
+       la luz solo se vea dentro de las letras, nunca fuera de ellas. */
+    .event-started .title-shine {
+      position: absolute;
+      inset: 0;
+      color: transparent;
+      background-image: linear-gradient(100deg,
+        transparent 42%,
+        rgba(255,255,255,.95) 49%,
+        rgba(255,255,255,.95) 53%,
+        transparent 60%);
+      background-size: 220% 100%;
+      background-position: 160% 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      pointer-events: none;
+      opacity: 0;
+      mix-blend-mode: screen;
+      animation: textShine 1s ease-in-out 1.25s both;
+    }
+
+    @keyframes ambient {
+      0%   { transform: translate3d(-5%, -3%, 0) scale(1); }
+      35%  { transform: translate3d(7%, 5%, 0) scale(1.08); }
+      70%  { transform: translate3d(-3%, 9%, 0) scale(1.02); }
+      100% { transform: translate3d(8%, -4%, 0) scale(1.12); }
+    }
+
+    @keyframes floatOne {
+      0%   { transform: translate(-4vw, -2vh) scale(.92); }
+      50%  { transform: translate(22vw, 18vh) scale(1.18); }
+      100% { transform: translate(7vw, 38vh) scale(1.04); }
+    }
+
+    @keyframes floatTwo {
+      0%   { transform: translate(4vw, 3vh) scale(1); }
+      50%  { transform: translate(-25vw, -15vh) scale(1.2); }
+      100% { transform: translate(-8vw, -35vh) scale(.95); }
+    }
+
+    @keyframes eventReveal {
+      from { opacity: 0; transform: scale(.88); filter: blur(12px); }
+      to   { opacity: 1; transform: scale(1); filter: blur(0); }
+    }
+
+    @keyframes impactPunch {
+      0%   { transform: scale(1) translate(0, 0); }
+      25%  { transform: scale(1.035) translate(-3px, 2px); }
+      50%  { transform: scale(.985) translate(3px, -2px); }
+      75%  { transform: scale(1.01) translate(-1px, 1px); }
+      100% { transform: scale(1) translate(0, 0); }
+    }
+
+    @keyframes shockwave {
+      0%   { opacity: .85; transform: translate(-50%, -50%) scale(0); border-width: 3px; }
+      70%  { opacity: .2; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(16); border-width: 0; }
+    }
+
+    @keyframes flashPop {
+      0%   { opacity: 0; }
+      30%  { opacity: .8; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes letterDrop {
+      0% {
+        opacity: 0;
+        transform: translateY(70px) rotate(calc(var(--dir, 1) * 16deg)) scale(.3);
+        filter: blur(12px);
+      }
+      55% {
+        opacity: 1;
+        transform: translateY(-10px) rotate(calc(var(--dir, 1) * -3deg)) scale(1.1);
+        filter: blur(0);
+      }
+      75% {
+        transform: translateY(4px) scale(.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) rotate(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes textShine {
+      0%   { background-position: 160% 0; opacity: 0; }
+      12%  { opacity: 1; }
+      60%  { background-position: -60% 0; opacity: 1; }
+      100% { background-position: -160% 0; opacity: 0; }
+    }
+
+    @keyframes titleBreathe {
+      from { transform: scaleX(.92) scale(1); opacity: .94; }
+      to   { transform: scaleX(.92) scale(1.035); opacity: 1; }
+    }
+
     @keyframes enter {
       from { opacity: 0; transform: translateY(24px) scale(.985); }
       to { opacity: 1; transform: translateY(0) scale(1); }
@@ -304,6 +506,17 @@
         animation: none !important;
         transition: none !important;
       }
+
+      .event-started #mainTitle .letter,
+      .event-started #mainTitle .sup {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+      }
+
+      .event-started .title-shine {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -318,7 +531,7 @@
         <span class="dot"></span>
       </div>
 
-      <h1>SUPERNARE <span class="sup">²</span></h1>
+      <h1 id="mainTitle">SUPERNARE <span class="sup">²</span></h1>
 
       <p class="subtitle">
         Sábado <b>12 de septiembre de 2026</b>
@@ -351,8 +564,30 @@
   </main>
 
   <script>
+    // ✏️ ACÁ agregá o sacá las frases que querés que roten en el footer.
+    // Cada vez que se carga/recarga la página, se elige una al azar.
+    const footerPhrases = [
+      "Videla en el metegol te hago pelota",
+      "PUTERÍA PUTERÍA",
+      "hasta el pis de los gatos",
+      "70/30",
+      "Leo dame queque",
+      "debería estar estudiando, no haciendo esta web de mierda",
+      "Todo pedo es responsabilidad de Uriel",
+      "FUERA DEL PLANETA ELLA ES",
+      "beer pong si o no",
+      "portense bien loco",
+      "no es super nare 2, es al cuadrado",
+      "https://open.spotify.com/playlist/1sxOeINiQkbK1jqp2Hv7qz?si=c1bbe6519c5349c2",
+      "ig @tomasfloores_"
+    ];
+
     // Objetivo fijo en hora argentina (UTC-03:00).
     const target = new Date("2026-09-12T20:00:00-03:00").getTime();
+
+    // 🔧 TESTING: poner en true para forzar el estado "evento iniciado"
+    // y ver los estilos finales sin esperar a la fecha real.
+    const FORCE_EVENT_STARTED = true;
 
     const $ = id => document.getElementById(id);
 
@@ -360,12 +595,57 @@
       return String(value).padStart(2, "0");
     }
 
+    function setRandomFooterPhrase() {
+      const el = document.querySelector(".footer-line");
+      if (!el || footerPhrases.length === 0) return;
+      const choice = footerPhrases[Math.floor(Math.random() * footerPhrases.length)];
+      el.textContent = choice;
+    }
+
+    setRandomFooterPhrase();
+
+    // Se ejecuta UNA sola vez, en el instante exacto en que arranca el evento.
+    let eventAnimationTriggered = false;
+
+    function triggerEventEntrance() {
+      if (eventAnimationTriggered) return;
+      eventAnimationTriggered = true;
+
+      document.body.classList.add("event-started");
+      $("countdown").style.display = "none";
+      document.querySelector(".eyebrow").style.display = "none";
+      document.querySelector(".subtitle").style.display = "none";
+      document.querySelector("footer").style.display = "none";
+
+      const title = $("mainTitle");
+      if (!title) return;
+
+      // Envuelve cada letra en su propio <span> para animarla individualmente.
+      const word = "SUPERNARE";
+      let lettersHTML = "";
+      [...word].forEach((ch, i) => {
+        const dir = i % 2 === 0 ? 1 : -1;
+        lettersHTML += `<span class="letter" style="--i:${i};--dir:${dir}">${ch}</span>`;
+      });
+      lettersHTML += `<span class="sup" style="--i:${word.length};--dir:1">²</span>`;
+
+      title.innerHTML = lettersHTML;
+      title.setAttribute("aria-label", "SUPERNARE al cuadrado");
+
+      // Capa de brillo: mismo texto, pero clippeado para que la luz
+      // solo se vea sobre las letras, nunca fuera de ellas.
+      const shine = document.createElement("span");
+      shine.className = "title-shine";
+      shine.setAttribute("aria-hidden", "true");
+      shine.textContent = "SUPERNARE ²";
+      title.appendChild(shine);
+    }
+
     function update() {
       const remaining = target - Date.now();
 
-      if (remaining <= 0) {
-        $("countdown").innerHTML =
-          '<div class="done" style="grid-column:1/-1">LLEGÓ EL MOMENTO.</div>';
+      if (FORCE_EVENT_STARTED || remaining <= 0) {
+        triggerEventEntrance();
         return;
       }
 
