@@ -222,14 +222,6 @@
     .unit:nth-child(3)::after { animation-delay: 1.4s; }
     .unit:nth-child(4)::after { animation-delay: 2.1s; }
 
-    .unit:hover {
-      transform: translateY(-6px);
-      border-color: rgba(255,23,111,.42);
-      box-shadow:
-        0 28px 80px rgba(0,0,0,.42),
-        0 0 35px rgba(255,23,111,.08);
-    }
-
     .number {
       display: block;
       font-variant-numeric: tabular-nums;
@@ -239,6 +231,55 @@
       letter-spacing: .025em;
       color: #fff;
       text-shadow: 0 0 28px rgba(255,23,111,.12);
+    }
+
+    .unit.is-zero {
+      background: #1a1a1a;
+      border-color: #3a3a3a;
+      box-shadow: none;
+    }
+
+    .unit.is-zero::before,
+    .unit.is-zero::after {
+      background: transparent;
+      animation: none;
+    }
+
+    .unit.is-zero .number {
+      color: #6b6b6b;
+      text-shadow: none;
+    }
+
+    .unit.is-zero .label {
+      color: #4d4d4d;
+    }
+
+    .unit.active {
+      border-color: rgba(255,23,111,.6);
+      animation: activeGlow 1.8s ease-in-out infinite;
+    }
+
+    .unit.active .number {
+      text-shadow: 0 0 30px rgba(255,23,111,.55), 0 0 60px rgba(255,23,111,.25);
+    }
+
+    .unit.active .label {
+      color: #e8b6c6;
+    }
+
+    @keyframes activeGlow {
+      0%, 100% {
+        box-shadow:
+          0 25px 80px rgba(0,0,0,.35),
+          inset 0 1px rgba(255,255,255,.05),
+          0 0 22px rgba(255,23,111,.28);
+      }
+      50% {
+        box-shadow:
+          0 25px 80px rgba(0,0,0,.35),
+          inset 0 1px rgba(255,255,255,.05),
+          0 0 48px rgba(255,23,111,.65);
+      }
     }
 
     .label {
@@ -598,7 +639,33 @@
     function setRandomFooterPhrase() {
       const el = document.querySelector(".footer-line");
       if (!el || footerPhrases.length === 0) return;
-      const choice = footerPhrases[Math.floor(Math.random() * footerPhrases.length)];
+
+      const storageKey = "supernare_shown_phrases";
+      let shown = [];
+
+      try {
+        shown = JSON.parse(localStorage.getItem(storageKey)) || [];
+      } catch {
+        shown = [];
+      }
+
+      // Mientras queden frases sin mostrar, elegimos entre esas.
+      const available = footerPhrases.filter(phrase => !shown.includes(phrase));
+
+      let choice;
+      if (available.length > 0) {
+        choice = available[Math.floor(Math.random() * available.length)];
+        shown.push(choice);
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(shown));
+        } catch {
+          // Si localStorage falla (modo privado, etc.), seguimos sin romper la web.
+        }
+      } else {
+        // Ya se mostraron todas: a partir de acá, random libre (con repetición).
+        choice = footerPhrases[Math.floor(Math.random() * footerPhrases.length)];
+      }
+
       el.textContent = choice;
     }
 
@@ -655,10 +722,33 @@
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
 
-      $("days").textContent = pad(days);
-      $("hours").textContent = pad(hours);
-      $("minutes").textContent = pad(minutes);
-      $("seconds").textContent = pad(seconds);
+      setUnit("days", days);
+      setUnit("hours", hours);
+      setUnit("minutes", minutes);
+      setUnit("seconds", seconds, { skipZeroStyle: true });
+
+      setActiveUnit([days, hours, minutes, seconds]);
+    }
+
+    function setActiveUnit(values) {
+      const ids = ["days", "hours", "minutes", "seconds"];
+      let activeIndex = values.findIndex(value => value !== 0);
+      if (activeIndex === -1) activeIndex = ids.length - 1;
+
+      ids.forEach((id, i) => {
+        const unitBlock = $(id).closest(".unit");
+        if (unitBlock) unitBlock.classList.toggle("active", i === activeIndex);
+      });
+    }
+
+    function setUnit(id, value, options = {}) {
+      const el = $(id);
+      el.textContent = pad(value);
+
+      if (options.skipZeroStyle) return;
+
+      const unitBlock = el.closest(".unit");
+      if (unitBlock) unitBlock.classList.toggle("is-zero", value === 0);
     }
 
     update();
